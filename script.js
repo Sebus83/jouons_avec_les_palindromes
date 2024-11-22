@@ -1,7 +1,7 @@
 let i = 0;
-const dateAjd = new Date(). toLocaleDateString()
+let dateAjd = new Date(). toLocaleDateString()
 //console.log(dateAjd)
-const tableauDate = splitDate(dateAjd)
+let tableauDate = splitDate(dateAjd)
 //console.log(tableauDate);
 const jourParMois = {
     '01': 31,
@@ -25,14 +25,6 @@ let nbJourParMois = Object.values(jourParMois);
 //fonction pour séparer le jour le mois et l'année
 function splitDate(date){
     let tableauDate = date.split('/')
-    date = tableauDate[0]
-    mois = tableauDate[1]
-    annee = tableauDate[2]
-    // console.log(date)
-    // console.log(mois)
-    // console.log(annee)
-    // console.log(tableauDate)
-
     return(tableauDate)
 }
 
@@ -46,7 +38,7 @@ function IsValiDate(tableauDate){
 if (tableauDate[0].length!=2){
     console.log("le format du jour doit être sur 2 caractères")
 }else {
-    console.log("true")
+    return true
 }
 
 // récupérer l'index du mois
@@ -54,70 +46,65 @@ const index = numDuMois.indexOf(tableauDate[1])
 
 //verifier si le jour de la date est >0
 if (tableauDate[0]>0){
-    console.log("true")
-}else{
-console.log("le jour est inférieur à 0")
+    return true
 }
 
 //vérifier si le jour est inférieur ou égale à nd de jour max dans le mois
 if (tableauDate[0]<=nbJourParMois[index]){
-    console.log("true")
-    console.log(nbJourParMois[index])
-}else{
-console.log("le jour est supérieur à 0")
+    return true
+    // console.log(nbJourParMois[index])
 }
 
 //format pour le mois
 if (tableauDate[1].length!=2){
-    console.log("le format du mois doit être sur 2 caractères")
-}else {
-    console.log("true")
+    return false
+    //console.log("le format du mois doit être sur 2 caractères")
 }
+
 //verifier si le mois est compris entre 1 et 12
 if (0<tableauDate[1] && tableauDate[1]<13){
-    console.log("true")
+    return true
 }else {
-    console.log("le mois doit être compris entre 1 et 12")
+        //console.log("le mois doit être compris entre 1 et 12")
 }
 
 //Format pour l'année
 if (tableauDate[2].length!=4){
-    console.log("le format de l'année doit être sur 4 caractères")
-}else {
-    console.log("true")
-}
-
-}
-
-function isPalindrome(tableauDate){
-
-//créer une chaine de caractères sans les /
-const stringDate = tableauDate.join("")
-//console.log(stringDate)
-
-// inverser la chaine de caractères
-const reverseStringDate = stringDate.split('').reverse().join('');
-//console.log(reverseStringDate)
-
-// comparer les deux chaines de caractères
-if (stringDate == reverseStringDate){
-    //console.log("cette date est un palindrome")
-    return true
-}else {
-    //console.log("Cette date n'est pas un palindrome")
+    //console.log("le format de l'année doit être sur 4 caractères")
     return false
 }
 
 }
 
-function getNextPalindrome(tableauDate){
+function isPalindrome(tableauDate){
+    // On formate la date pour avoir le format ddmmyyyy
+    let formattedDate = tableauDate.map(num => num.toString().padStart(2, '0')).join('');
     
+    // On crée la version inversée sans modifier l'original
+    let reversedDate = formattedDate.split('').reverse().join('');
+    
+    // On compare la date formatée avec sa version inversée
+    if (formattedDate === reversedDate) {
+        console.log(formattedDate + " : cette date est un palindrome");
+        return true;
+    } else {
+        // console.log("Cette date n'est pas un palindrome");
+        return false;
+    }
+}
+
+
+function getNextPalindrome(tableauDate){
+    // Vérifier si la date est valide avant de commencer
+    if (!IsValiDate(tableauDate)) {
+        return null; // ou gérer l'erreur
+    }
     
     while (!isPalindrome(tableauDate)) {
-        dateSuivante(tableauDate);
+        incrementDate(tableauDate);
     }
     console.log("result : " + tableauDate)
-    dateSuivante(tableauDate);
+    incrementDate(tableauDate);
     if (i<7){
         i++
         getNextPalindrome(tableauDate)
@@ -127,19 +114,38 @@ function getNextPalindrome(tableauDate){
     
 }
 
-function dateSuivante(date) {
-    date[0]++;
-    if (date[0] > "31") {
-        date[0] = "01";
-        date[1]++;
-        if (date[1] > "12") {
-            date[1] = "01";
-            date[2]++;
+function incrementDate(date) {
+    // Convertir les éléments en nombres
+    let jour = parseInt(date[0]);
+    let mois = parseInt(date[1]);
+    let annee = parseInt(date[2]);
+
+    // Formatage du mois pour la recherche dans jourParMois
+    let moisFormate = mois.toString().padStart(2, '0');
+    
+    // Récupérer le nombre de jours du mois actuel
+    const maxJours = jourParMois[moisFormate];
+
+    // Incrémenter le jour
+    jour++;
+
+    // Si on dépasse le nombre de jours du mois
+    if (jour > maxJours) {
+        jour = 1;
+        mois++;
+        
+        // Si on dépasse décembre
+        if (mois > 12) {
+            mois = 1;
+            annee++;
         }
     }
+
+    // Mettre à jour le tableau avec les nouvelles valeurs (formatées)
+    date[0] = jour.toString().padStart(2, '0');
+    date[1] = mois.toString().padStart(2, '0');
+    date[2] = annee.toString();
 }
-
-
 // IsValiDate(splitDate("25/02/2052"))
 // isPalindrome(splitDate("25/02/2052"))
 getNextPalindrome(tableauDate)
